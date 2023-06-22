@@ -1,0 +1,165 @@
+/* stylesheet.css */
+body {
+  display: flex;
+  font-family: "Times New Roman, Times, serif";
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #333;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+header {
+  display: flex;
+  height: 50px;
+  background-color: rgb(0, 110, 255);
+  color: white;
+}
+
+.topleft-container {
+  flex: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  text-align: left;
+}
+
+.topright-container {
+  flex: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  text-align: right;
+}
+
+.logo img {
+  width: auto;
+}
+
+h1 {
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin: 5px;
+}
+
+/* 
+.wrapper-main {
+  margin-top: 0.5rem;
+} */
+
+.float-left {
+  float: left;
+}
+
+.modal-dialog {
+  width: 90%;
+  margin: 0;
+  min-width: 90%;
+  overflow: auto;
+}
+
+.scrollable-container {
+  width: fit-content;
+  height: 700px;
+  overflow: auto;
+}
+
+.table-wrapper {
+  flex: 1;
+  max-height: 700px;
+  overflow-x: auto;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.table thead th {
+  background-color: #83faf9;
+  color: #000;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #35fae0;
+  color: #000;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: white;
+}
+
+.table td:nth-child(3) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td:nth-child(11) {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table td:nth-child(12) {
+  white-space: normal;
+  word-wrap: break-word;
+  max-height: 3em;
+  overflow: hidden;
+}
+
+.btn-group {
+  display: flex;
+  gap: 2px;
+}
+
+/* .btn {
+  background-color: #ffffff;
+  color: #000;
+  padding: 3px 3px;
+  text-align: center;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+} */
+
+.btn-primary {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #0d6e0d;
+  border-color: #0d6e0d;
+}
+
+.btn-warning {
+  color: #fff;
+  background-color: #ff0;
+  border-color: #ff0;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+/* 
+.btn-danger:hover {
+  color: #fff;
+  background-color: #c82333;
+  border-color: #bd2130;
+} */
+
+footer {
+  margin-top: auto;
+  text-align: left;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+
+.bottomleft-container {
+  justify-content: left;
+  padding: 0 10px;
+}
