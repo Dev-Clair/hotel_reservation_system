@@ -5,12 +5,12 @@ function customerServiceTable()
 {
     /**
      * require resource: Connection Object
-     * to create customerService table in database
+     * to create customerservice table in database
      * close resource: Connection Object
      */
     $connection = connection();
     // Construct query to create table in database
-    $sql_query = "CREATE TABLE IF NOT EXISTS customerService (bookingID INT(10) UNSIGNED NOT NULL, name VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, mobileNo VARCHAR(20) NOT NULL, roomType VARCHAR(50) NOT NULL, checkInDate VARCHAR(10) NOT NULL, checkInTime VARCHAR(10) NOT NULL, stayType VARCHAR(20) NOT NULL, stayDuration VARCHAR(20) NOT NULL, pickUpLocation VARCHAR(150) NOT NULL)";
+    $sql_query = "CREATE TABLE IF NOT EXISTS customerservice (bookingID INT(10) UNSIGNED NOT NULL, name VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, mobileNo VARCHAR(20) NOT NULL, roomType VARCHAR(50) NOT NULL, checkInDate VARCHAR(10) NOT NULL, checkInTime VARCHAR(10) NOT NULL, stayType VARCHAR(20) NOT NULL, stayDuration VARCHAR(20) NOT NULL, pickUpLocation VARCHAR(150) NOT NULL)";
 
     $status = $connection->query($sql_query);
     if ($status === false) {
@@ -40,5 +40,29 @@ function assignBooking(array $newRecord): bool
 
     return $result;
 }
+
+
+function readAssignedBookings(): array
+{
+    /**
+     * require resource: Connection Object
+     * to read records from table in database
+     * close resource: Connection Object
+     */
+    $connection = connection();
+    // Construct query to read table records from database
+    $sql_query = "SELECT * FROM customerservice";
+    $result = $connection->query($sql_query);
+    if ($result->num_rows > 0) {
+        $rows = $result->fetch_all(MYSQLI_ASSOC); // Returns an associative array
+        $result->close(); // Close Result Object
+        $connection->close(); // Close Connection Object
+        return $rows;
+    } else {
+        $connection->close(); // Close Connection Object
+        return []; // Returns an empty array if no rows are found
+    }
+}
+
 
 // customerServiceTable();

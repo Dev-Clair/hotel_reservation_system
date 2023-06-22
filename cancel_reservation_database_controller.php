@@ -30,7 +30,7 @@ function cancelBooking(array $newRecord): bool
      */
     $connection = connection();
     // Construct query to insert records into Database
-    $sql_query = "INSERT INTO cancelledBookings (bookingID, name, email, mobileNo, roomType, checkInDate, checkInTime, stayType, stayDuration, pickUpLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql_query = "INSERT INTO cancelledbookings (bookingID, name, email, mobileNo, roomType, checkInDate, checkInTime, stayType, stayDuration, pickUpLocation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($sql_query);
     $stmt->bind_param("isssssssss", $newRecord['bookingID'], $newRecord['name'], $newRecord['email'], $newRecord['mobileNo'], $newRecord['roomType'], $newRecord['checkInDate'], $newRecord['checkInTime'], $newRecord['stayType'], $newRecord['stayDuration'], $newRecord['pickUpLocation']);
     $result = $stmt->execute();
@@ -40,5 +40,29 @@ function cancelBooking(array $newRecord): bool
 
     return $result;
 }
+
+
+function readCancelledBookings(): array
+{
+    /**
+     * require resource: Connection Object
+     * to read records from table in database
+     * close resource: Connection Object
+     */
+    $connection = connection();
+    // Construct query to read table records from database
+    $sql_query = "SELECT * FROM cancelledbookings";
+    $result = $connection->query($sql_query);
+    if ($result->num_rows > 0) {
+        $rows = $result->fetch_all(MYSQLI_ASSOC); // Returns an associative array
+        $result->close(); // Close Result Object
+        $connection->close(); // Close Connection Object
+        return $rows;
+    } else {
+        $connection->close(); // Close Connection Object
+        return []; // Returns an empty array if no rows are found
+    }
+}
+
 
 // cancelledBookingsTable();

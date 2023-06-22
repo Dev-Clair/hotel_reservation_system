@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php'; // Import Database File
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php'; // Import file for validating user input
+// Import Database Files
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'admin_database_controller.php';
+// Import file for validating user input
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php';
 
 // Retrieve BookingID from Query String
 $bookingID = isset($_GET['bookingID']) ? (int)$_GET['bookingID'] : null;

@@ -1,5 +1,9 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php'; // Import Database File
+// Import Database Files
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'assign_reservation_database_controller.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'admin_database_controller.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'cancel_reservation_database_controller.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,32 +57,29 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
     }
     ?>
     <div class="btn-grp">
-        <!-- Button trigger modal -->
-        <button type="button" class="btn-primary rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showTableModal">Bookings
+        <!-- Bookings  trigger modal -->
+        <button type="button" class="btn-primary rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showBookingsTableModal">Bookings
         </button>
-        <!-- Button trigger modal -->
-        <button type="button" class="btn-success rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showTableModal">Assigned
+        <!-- Assigned Bookings Button trigger modal -->
+        <button type="button" class="btn-success rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showAssignedBookingsTableModal">Assigned
         </button>
-        <!-- Button trigger modal -->
-        <button type="button" class="btn-warning rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showTableModal">Rescheduled
+        <!-- Rescheduled Bookings Button trigger modal -->
+        <button type="button" class="btn-primary rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showRescheduledBookingsTableModal">Rescheduled
         </button>
-        <!-- Button trigger modal -->
-        <button type="button" class="btn-danger rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showTableModal">Cancelled
+        <!-- Cancelled Bookings Button trigger modal -->
+        <button type="button" class="btn-danger rounded my-3 mb-3" data-bs-toggle="modal" data-bs-target="#showCancelledBookingsTableModal">Cancelled
         </button>
     </div>
 
-    <h1>Booking Records</h1>
-
-    <!-- Table Modal -->
-    <div class="modal fade" id="showTableModal" tabindex="-1" aria-labelledby="showTableModalLabel" aria-hidden="true">
+    <!-- Bookings Table Modal -->
+    <div class="modal fade" id="showBookingsTableModal" tabindex="-1" aria-labelledby="showBookingsTableModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="showTableModalLabel"><strong>Create Service</strong> </h5>
+                    <h5 class="modal-title" id="showBookingsTableModalLabel"><strong>Bookings</strong> </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class=modal-body scrollable-container">
-                    <!-- Table goes here -->
                     <section class="wrapper-main">
                         <!-- List Booking Record -->
                         <div class="container-fluid table-wrapper">
@@ -121,7 +122,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
                                                 <td><?php echo $row["pickUpLocation"]; ?></td>
                                                 <td class="btn-group">
                                                     <a href="assign_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-success rounded btn-sm">Assign</a>
-                                                    <a href="reschedule_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
+                                                    <a href="adminrescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
                                                     <a href="cancel_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-danger rounded btn-sm">Cancel</a>
                                                 </td>
                                                 </tr>
@@ -131,6 +132,211 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
                                             ?>
                                             <tr>
                                                 <td colspan="13">No records found.</td>
+                                            </tr>
+                                        <?php
+                                    }
+                                        ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Assigned Bookings Table Modal -->
+    <div class="modal fade" id="showAssignedBookingsTableModal" tabindex="-1" aria-labelledby="showAssignedBookingsTableModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showAssignedBookingsTableModalLabel"><strong>Assigned Bookings</strong> </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class=modal-body scrollable-container">
+                    <section class="wrapper-main">
+                        <!-- List Booking Record -->
+                        <div class="container-fluid table-wrapper">
+                            <table class="table table-striped table-bordered mt-4">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>S/n</th>
+                                        <th>Booking ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Room-Type</th>
+                                        <th>CID</th>
+                                        <th>CIT</th>
+                                        <th>Stay-Type</th>
+                                        <th>Stay-Duration</th>
+                                        <th>Pick-Up Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $assignedBooking = readAssignedBookings();
+                                    if (!empty($assignedBooking)) {
+                                        $count = 0;
+                                        foreach ($assignedBooking as $row) {
+                                            $count++;
+                                    ?>
+                                            <>
+                                                <td><?php echo $count; ?></td>
+                                                <td><?php echo $row["bookingID"]; ?></td>
+                                                <td><?php echo $row["name"]; ?></td>
+                                                <td><?php echo $row["email"]; ?></td>
+                                                <td><?php echo $row["mobileNo"]; ?></td>
+                                                <td><?php echo $row["roomType"]; ?></td>
+                                                <td><?php echo $row["checkInDate"]; ?></td>
+                                                <td><?php echo $row["checkInTime"]; ?></td>
+                                                <td><?php echo $row["stayType"]; ?></td>
+                                                <td><?php echo $row["stayDuration"]; ?></td>
+                                                <td><?php echo $row["pickUpLocation"]; ?></td>
+                                                </tr>
+                                            <?php
+                                        }
+                                    } else {
+                                            ?>
+                                            <tr>
+                                                <td colspan="12">No records found.</td>
+                                            </tr>
+                                        <?php
+                                    }
+                                        ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Rescheduled Bookings Table Modal -->
+    <div class="modal fade" id="showRescheduledBookingsTableModal" tabindex="-1" aria-labelledby="showRescheduledBookingsTableModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showRescheduledBookingsTableModalLabel"><strong>Rescheduled Bookings</strong> </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class=modal-body scrollable-container">
+                    <section class="wrapper-main">
+                        <!-- List Booking Record -->
+                        <div class="container-fluid table-wrapper">
+                            <table class="table table-striped table-bordered mt-4">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>S/n</th>
+                                        <th>Booking ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Room-Type</th>
+                                        <th>CID</th>
+                                        <th>CIT</th>
+                                        <th>Stay-Type</th>
+                                        <th>Stay-Duration</th>
+                                        <th>Pick-Up Location</th>
+                                        <th>Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $rescheduledBooking = readAssignedBookings();
+                                    if (!empty($rescheduledBooking)) {
+                                        $count = 0;
+                                        foreach ($rescheduledBooking as $row) {
+                                            $count++;
+                                    ?>
+                                            <>
+                                                <td><?php echo $count; ?></td>
+                                                <td><?php echo $row["bookingID"]; ?></td>
+                                                <td><?php echo $row["name"]; ?></td>
+                                                <td><?php echo $row["email"]; ?></td>
+                                                <td><?php echo $row["mobileNo"]; ?></td>
+                                                <td><?php echo $row["roomType"]; ?></td>
+                                                <td><?php echo $row["checkInDate"]; ?></td>
+                                                <td><?php echo $row["checkInTime"]; ?></td>
+                                                <td><?php echo $row["stayType"]; ?></td>
+                                                <td><?php echo $row["stayDuration"]; ?></td>
+                                                <td><?php echo $row["pickUpLocation"]; ?></td>
+                                                <td class="btn-group">
+                                                    <a href="adminrescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
+                                                </td>
+                                                </tr>
+                                            <?php
+                                        }
+                                    } else {
+                                            ?>
+                                            <tr>
+                                                <td colspan="13">No records found.</td>
+                                            </tr>
+                                        <?php
+                                    }
+                                        ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Cancelled Bookings Table Modal -->
+    <div class="modal fade" id="showCancelledBookingsTableModal" tabindex="-1" aria-labelledby="showCancelledBookingsTableModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showCancelledBookingsTableModalLabel"><strong>Cancelled Bookings</strong> </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class=modal-body scrollable-container">
+                    <section class="wrapper-main">
+                        <!-- List Booking Record -->
+                        <div class="container-fluid table-wrapper">
+                            <table class="table table-striped table-bordered mt-4">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>S/n</th>
+                                        <th>Booking ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Room-Type</th>
+                                        <th>CID</th>
+                                        <th>CIT</th>
+                                        <th>Stay-Type</th>
+                                        <th>Stay-Duration</th>
+                                        <th>Pick-Up Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $cancelledBooking = readCancelledBookings();
+                                    if (!empty($cancelledBooking)) {
+                                        $count = 0;
+                                        foreach ($cancelledBooking as $row) {
+                                            $count++;
+                                    ?>
+                                            <>
+                                                <td><?php echo $count; ?></td>
+                                                <td><?php echo $row["bookingID"]; ?></td>
+                                                <td><?php echo $row["name"]; ?></td>
+                                                <td><?php echo $row["email"]; ?></td>
+                                                <td><?php echo $row["mobileNo"]; ?></td>
+                                                <td><?php echo $row["roomType"]; ?></td>
+                                                <td><?php echo $row["checkInDate"]; ?></td>
+                                                <td><?php echo $row["checkInTime"]; ?></td>
+                                                <td><?php echo $row["stayType"]; ?></td>
+                                                <td><?php echo $row["stayDuration"]; ?></td>
+                                                <td><?php echo $row["pickUpLocation"]; ?></td>
+                                                </tr>
+                                            <?php
+                                        }
+                                    } else {
+                                            ?>
+                                            <tr>
+                                                <td colspan="12">No records found.</td>
                                             </tr>
                                         <?php
                                     }

@@ -130,9 +130,6 @@ function updateSingleBooking(int $bookingID, array $updatedRecord): bool
     $stmt->bind_param("sssssi", $updatedRecord['checkInDate'], $updatedRecord['checkInTime'], $updatedRecord['stayType'], $updatedRecord['stayDuration'], $updatedRecord['pickUpLocation'], $bookingID);
 
     $status = $stmt->execute();
-    if ($status === false) {
-        echo $stmt->error . PHP_EOL;
-    }
 
     $stmt->close(); // Close Statement Object
     $connection->close(); // Close Connection Object
@@ -155,9 +152,6 @@ function deleteSingleBooking(int $bookingID): bool
     $stmt->bind_param("i", $bookingID);
 
     $status = $stmt->execute();
-    if ($status === false) {
-        echo $stmt->error . PHP_EOL;
-    }
 
     $stmt->close(); // Close Statement Object
     $connection->close(); // Close Connection Object
