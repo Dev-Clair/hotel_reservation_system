@@ -122,7 +122,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'cancel_reservation_database_contro
                                                 <td><?php echo $row["pickUpLocation"]; ?></td>
                                                 <td class="btn-group">
                                                     <a href="assign_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-success rounded btn-sm">Assign</a>
-                                                    <a href="adminrescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
+                                                    <a href="admin_rescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
                                                     <a href="cancel_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-danger rounded btn-sm">Cancel</a>
                                                 </td>
                                                 </tr>
@@ -242,7 +242,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'cancel_reservation_database_contro
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $rescheduledBooking = readAssignedBookings();
+                                    $rescheduledBooking = readRescheduledBookings();
                                     if (!empty($rescheduledBooking)) {
                                         $count = 0;
                                         foreach ($rescheduledBooking as $row) {
@@ -261,7 +261,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'cancel_reservation_database_contro
                                                 <td><?php echo $row["stayDuration"]; ?></td>
                                                 <td><?php echo $row["pickUpLocation"]; ?></td>
                                                 <td class="btn-group">
-                                                    <a href="adminrescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
+                                                    <a href="admin_rescheduled_reservation.php?bookingID=<?php echo $row["bookingID"]; ?>" class="btn btn-primary rounded btn-sm">Reschedule</a>
                                                 </td>
                                                 </tr>
                                             <?php

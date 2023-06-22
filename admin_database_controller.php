@@ -10,7 +10,7 @@ function rescheduledBookingTable()
      */
     $connection = connection();
     // Construct query to create table in database
-    $sql_query = "CREATE TABLE IF NOT EXISTS rescheduledbookings (bookingID INT(10) UNSIGNED NOT NULL, name VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, mobileNo VARCHAR(20) NOT NULL, roomType VARCHAR(50) NOT NULL, checkInDate VARCHAR(10) NOT NULL, checkInTime VARCHAR(10) NOT NULL, stayType VARCHAR(20) NOT NULL, stayDuration VARCHAR(20) NOT NULL, pickUpLocation VARCHAR(150) NOT NULL, count INT NOT NULL DEFAULT 0)";
+    $sql_query = "CREATE TABLE IF NOT EXISTS rescheduledbookings (bookingID INT(10) UNSIGNED NOT NULL, name VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL, mobileNo VARCHAR(20) NOT NULL, roomType VARCHAR(50) NOT NULL, checkInDate VARCHAR(10) NOT NULL, checkInTime VARCHAR(10) NOT NULL, stayType VARCHAR(20) NOT NULL, stayDuration VARCHAR(20) NOT NULL, pickUpLocation VARCHAR(150) NOT NULL, 'count' INT NOT NULL DEFAULT 0)";
 
     $status = $connection->query($sql_query);
     if ($status === false) {
@@ -18,32 +18,6 @@ function rescheduledBookingTable()
     }
 
     $connection->close(); // Close Connection Object
-}
-
-function rescheduleCounter($bookingID): int|null
-{
-    // require resource: Connection Object
-    // to check number of reschedules in table in database
-    // @param int $bookingID
-    // close resource: Connection Object
-    $connection = connection();
-    // Construct query to check count value in table in database
-    $sql_query = "SELECT `count` FROM rescheduledbookings WHERE bookingID = ?";
-    $stmt = $connection->prepare($sql_query);
-    $stmt->bind_param("i", $bookingID);
-
-    $status = $stmt->execute();
-    if ($status) {
-        $stmt->bind_result($count); // Bind the result to a variable
-        $stmt->fetch(); // Fetch the value
-        $stmt->close(); // Close Statement Object
-        $connection->close(); // Close Connection Object
-        return $count; // Return the value stored in the count column
-    } else {
-        $stmt->close(); // Close Statement Object
-        $connection->close(); // Close Connection Object
-        return null; // Returns null if the query execution fails
-    }
 }
 
 function addRescheduledBooking(array $newRecord): bool
@@ -89,6 +63,30 @@ function readRescheduledBookings(): array
     }
 }
 
+function adminValidate_bookingID(int $bookingID): bool
+{
+    /**
+     * require resource: Connection Object
+     * to validate bookingID in table in database
+     * @param string $bookingID
+     * @return bool true if valid else false
+     * close resource: Connection Object
+     */
+    $connection = connection();
+    $sql_query = "SELECT * FROM rescheduledbookings WHERE bookingID = ?";
+    $stmt = $connection->prepare($sql_query);
+    $stmt->bind_param("i", $bookingID);
+    $validBookingID = false;
+    if ($stmt->execute()) {
+        $validBookingID = ($stmt->fetch() !== null); // Check if a row is fetched
+    }
+
+    $stmt->close(); // Close Statement Object
+    $connection->close(); // Close Connection Object
+
+    return $validBookingID;
+}
+
 function updateRescheduledBooking(int $bookingID, array $updatedRecord): bool
 {
     /**
@@ -99,31 +97,9 @@ function updateRescheduledBooking(int $bookingID, array $updatedRecord): bool
      * close resource: Connection Object
      */
     $connection = connection();
-    $sql_query = "UPDATE rescheduledbookings SET roomType = ?, checkInDate=?, checkInTime=?, stayType=?, stayDuration=?, pickUpLocation=? WHERE bookingID=?";
+    $sql_query = "UPDATE rescheduledbookings SET roomType = ?, checkInDate = ?, checkInTime = ?, stayType = ?, stayDuration = ?, pickUpLocation = ? WHERE bookingID = ?";
     $stmt = $connection->prepare($sql_query);
-    $stmt->bind_param("i, ssssss", $updatedRecord['roomType'], $updatedRecord['checkInDate'], $updatedRecord['checkInTime'], $updatedRecord['stayType'], $updatedRecord['stayDuration'], $updatedRecord['pickUpLocation'], $bookingID);
-
-    $status = $stmt->execute();
-
-    $stmt->close(); // Close Statement Object
-    $connection->close(); // Close Connection Object
-
-    return $status;
-}
-
-function updateRescheduleCounter(int $bookingID, int $updatedCount): bool
-{
-    /**
-     * require resource: Connection Object
-     * to update count value for bookingID in table in the database
-     * @param int $bookingID
-     * @param int $updatedCount
-     * close resource: Connection Object
-     */
-    $connection = connection();
-    $sql_query = "UPDATE rescheduledbookings SET 'count' = ? WHERE bookingID=?";
-    $stmt = $connection->prepare($sql_query);
-    $stmt->bind_param("ii", $updatedCount, $bookingID);
+    $stmt->bind_param("ssssssi", $updatedRecord['roomType'], $updatedRecord['checkInDate'], $updatedRecord['checkInTime'], $updatedRecord['stayType'], $updatedRecord['stayDuration'], $updatedRecord['pickUpLocation'], $bookingID);
 
     $status = $stmt->execute();
 
@@ -156,3 +132,54 @@ function deleteRescheduledBooking(int $bookingID): bool
 }
 
 // rescheduledBookingTable();
+
+
+/** Rescheduling Handlers */
+
+function retrieveRescheduleCount($bookingID): int|null
+{
+    // require resource: Connection Object
+    // to retrieve the number of reschedules in table in database
+    // @param int $bookingID
+    // close resource: Connection Object
+    $connection = connection();
+    // Construct query to check count value in table in database
+    $sql_query = "SELECT `count` FROM rescheduledbookings WHERE bookingID = ?";
+    $stmt = $connection->prepare($sql_query);
+    $stmt->bind_param("i", $bookingID);
+
+    $status = $stmt->execute();
+    if ($status) {
+        $stmt->bind_result($count); // Bind the result to a variable
+        $stmt->fetch(); // Fetch the value
+        $stmt->close(); // Close Statement Object
+        $connection->close(); // Close Connection Object
+        return $count; // Return the value stored in the count column
+    } else {
+        $stmt->close(); // Close Statement Object
+        $connection->close(); // Close Connection Object
+        return null; // Returns null if the query execution fails
+    }
+}
+
+function updateRescheduleCount(int $updatedCount, int $bookingID): bool
+{
+    /**
+     * require resource: Connection Object
+     * to update count value for bookingID in table in the database
+     * @param int $updatedCount
+     * @param int $bookingID
+     * close resource: Connection Object
+     */
+    $connection = connection();
+    $sql_query = "UPDATE rescheduledbookings SET `count` = ? WHERE bookingID = ?";
+    $stmt = $connection->prepare($sql_query);
+    $stmt->bind_param("ii", $updatedCount, $bookingID);
+
+    $status = $stmt->execute();
+
+    $stmt->close(); // Close Statement Object
+    $connection->close(); // Close Connection Object
+
+    return $status;
+}

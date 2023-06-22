@@ -33,26 +33,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Check if $bookingID is set and not null
-    if ($bookingID) {
-        // Create an array of updated booking details
-        $updatedRecord = array(
-            'checkInDate' => $checkInDate,
-            'checkInTime' => $checkInTime,
-            'stayType' => $stayType,
-            'stayDuration' => $stayDuration,
-            'pickUpLocation' => $pickUpLocation
-        );
+    // Check if $bookingID is valid
+    if (validate_bookingID($bookingID) || adminValidate_bookingID($bookingID)) {
+        // If Valid: Retrieve and add record from bookings table  to rescheduledBookings table in database
+        $retrievedRecord = readSingleBooking($bookingID);
+        print_r($retrievedRecord);
+        $rescheduleCount = retrieveRescheduleCount($bookingID);
+        if ($rescheduleCount < 2) {
+            $rescheduleCount++;
+            $retrievedRecord['count'] = $rescheduleCount;
+            $newRecord = $retrievedRecord;
+        }
+        $rescheduleStatus = addRescheduledBooking($newRecord);
+        // Delete Record from bookings table in database
+        $deleteStatus = deleteSingleBooking($bookingID);
 
-        // Search and update the record with the matching bookingID
-        $updateRecord = updateSingleBooking($bookingID, $updatedRecord);
+        if ($rescheduleStatus === true && $deleteStatus === true) {
+            // Create an array of updated booking details
+            $updatedRecord = array(
+                'roomType' => $roomType,
+                'checkInDate' => $checkInDate,
+                'checkInTime' => $checkInTime,
+                'stayType' => $stayType,
+                'stayDuration' => $stayDuration,
+                'pickUpLocation' => $pickUpLocation
+            );
 
-        if ($updateRecord) {
-            // Redirect to index.php with success message
-            $successMessage = "Booking Successfully Rescheduled. The reception will call 3 hours before the check-in time to confirm availability status.";
-            $address = 'index.php?updateSuccessMessage=' . urlencode($successMessage);
-            header("Location: $address");
-            exit();
+            // Check Reschedule Counter
+            $rescheduleCount = retrieveRescheduleCount($bookingID);
+            if ($rescheduleCount > 2) {
+                deleteRescheduledBooking($bookingID);
+                // Redirect to index.php with success message
+                $successMessage = "Booking has been cancelled. The contract is deemed executed after rescheduling more than twice.";
+                $address = 'index.php?updateSuccessMessage=' . urlencode($successMessage);
+                header("Location: $address");
+                exit();
+            }
+
+            // Update the record with the matching bookingID
+            $count = updateRescheduleCount($rescheduleCount, $bookingID);
+            $updatedRecord = updateRescheduledBooking($bookingID, $updatedRecord);
+
+            if ($count === true && $updatedRecord === true) {
+                // Redirect to index.php with success message
+                $successMessage = "Booking Successfully Rescheduled. The reception will call 3 hours before the check-in time to confirm availability status.";
+                $address = 'index.php?updateSuccessMessage=' . urlencode($successMessage);
+                header("Location: $address");
+                exit();
+            }
         }
     }
 

@@ -36,32 +36,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Check if $bookingID is set and not null
-    if ($bookingID) {
-        // Create an array of updated booking details
-        $updatedRecord = array(
-            'roomType' => $roomType,
-            'checkInDate' => $checkInDate,
-            'checkInTime' => $checkInTime,
-            'stayType' => $stayType,
-            'stayDuration' => $stayDuration,
-            'pickUpLocation' => $pickUpLocation
-        );
+    // Check if $bookingID is valid
+    if (validate_bookingID($bookingID) || adminValidate_bookingID($bookingID)) {
+        // If Valid: Retrieve and add record from bookings table  to rescheduledBookings table in database
+        $retrievedRecord = readSingleBooking($bookingID);
+        $newRecord = $retrievedRecord;
+        $rescheduleStatus = addRescheduledBooking($newRecord);
+        // Delete Record from bookings table in database
+        $deleteStatus = deleteSingleBooking($bookingID);
 
-        // Search and update the record with the matching bookingID
-        $updateRecord = updateSingleBooking($bookingID, $updatedRecord);
+        if ($rescheduleStatus === true && $deleteStatus === true) {
+            // Create an array of updated booking details
+            $updatedRecord = array(
+                'roomType' => $roomType,
+                'checkInDate' => $checkInDate,
+                'checkInTime' => $checkInTime,
+                'stayType' => $stayType,
+                'stayDuration' => $stayDuration,
+                'pickUpLocation' => $pickUpLocation
+            );
 
-        if ($updateRecord) {
-            // Redirect to index.php with success message
-            $successMessage = "Booking Successfully Rescheduled. Kindly communicate the success of the operation with the customer.";
-            $address = 'admin.php?updateSuccessMessage=' . urlencode($successMessage);
-            header("Location: $address");
-            exit();
+            // Update the record with the matching bookingID
+            $updatedRecord = updateRescheduledBooking($bookingID, $updatedRecord);
+
+            if ($updatedRecord) {
+                // Redirect to index.php with success message
+                $successMessage = "Booking Successfully Rescheduled. Kindly communicate the success of the operation with the customer.";
+                $address = 'admin.php?updateSuccessMessage=' . urlencode($successMessage);
+                header("Location: $address");
+                exit();
+            }
         }
     }
-
     $errorMessage = "Error! Cannot reschedule booking";
-    $address = 'admin.php?updateErrorMessage=' . urlencode($errorMessage);
+    $address = 'admin_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
     header("Location: $address");
     exit();
 }
@@ -71,7 +79,7 @@ if ($bookingID) {
     $bookingData = readSingleBooking($bookingID);
 } else {
     $errorMessage = "Error! Invalid booking ID.";
-    $address = 'admin.php?updateErrorMessage=' . urlencode($errorMessage);
+    $address = 'admin_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
     header("Location: $address");
     exit();
 }
@@ -85,7 +93,7 @@ if ($bookingData) {
     $pickUpLocation = $bookingData['pickUpLocation'];
 } else {
     $errorMessage = "Error! Booking data not found.";
-    $address = 'customer_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
+    $address = 'admin_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
     header("Location: $address");
     exit();
 }
