@@ -22,13 +22,13 @@ class CreateTable
      * @param string $tableName = "Name of table to be created in database"
      * @param string $columns = "fieldName dataType NULL/NOT NULL ?PRIMARY KEY ?AUTO_INCREMENT, fieldName dataType NULL/NOT NULL ?DEFAULT"
      */
-    public function createTable(string $tableName, string $columns): bool
+    public function createTable(string $tableName, string $fieldNames): bool
     {
         if ($this->conn === null) {
             die("No database connection available.");
         }
 
-        $sql_query = "CREATE TABLE IF NOT EXISTS $tableName ($columns)";
+        $sql_query = "CREATE TABLE IF NOT EXISTS $tableName ($fieldNames)";
         $result = $this->conn->query($sql_query);
 
         if ($result !== true) {
@@ -273,6 +273,38 @@ class DatabaseTableOperations
         // $this->conn->close(); // Close connection
 
         return $status;
+    }
+
+    public function retrieveTableReport(string $tableName, array $tableFields, array $joins, array $joinConditions): array
+    {
+        if ($this->conn === null) {
+            die("No database connection available.");
+        }
+
+        // Construct table fields
+        $fieldNames = implode(", ", $tableFields);
+
+        // Construct join statements
+        $joinStatements = "";
+        foreach ($joins as $index => $join) {
+            $joinType = $join['type'];
+            $joinTable = $join['table'];
+            $joinCondition = $joinConditions[$index];
+            $joinStatements .= "$joinType JOIN $joinTable ON $joinCondition ";
+        }
+
+        // Construct SQL query
+        $sql_query = "SELECT $fieldNames FROM $tableName $joinStatements";
+
+        $result = $this->conn->query($sql_query);
+
+        if ($result->num_rows > 0) {
+            $rows = $result->fetch_all(MYSQLI_ASSOC); // Returns an associative array
+            $result->close(); // Close Result Object
+            return $rows;
+        } else {
+            return []; // Returns an empty array if no rows are found
+        }
     }
 }
 

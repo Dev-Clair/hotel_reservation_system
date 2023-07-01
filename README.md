@@ -4,7 +4,7 @@ This is a Hotel Reservation System project that allows users to book, check and 
 
 ## Features
 
-- Booking a Reservation can be any of Room, Private Pool, Event Halls and COnference Roooms
+- Booking a Reservation can be any of Room, Private Pool, Event Halls and Conference Rooms
 - Check reservation: Users can enter a booking ID to check the validity of their reservation.
 - Reschedule reservation: Users can modify their reservation details such as check-in date, check-in time, stay duration, and pick-up location.
 

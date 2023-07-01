@@ -1,0 +1,165 @@
+body {
+  display: flex;
+  font-family: "Times New Roman, Times, serif";
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+header {
+  display: flex;
+  height: 50px;
+  background-color: rgb(0, 110, 255);
+  color: white;
+}
+
+/* customer stylesheet.css */
+
+/* .row {
+  text-align: right;
+} */
+
+.leftform-container {
+  flex: 1;
+  width: 40%;
+  margin-left: 10px;
+  margin-right: 10px;
+  float: left;
+}
+
+.rightform-container {
+  flex: 1;
+  width: 60%;
+  margin-left: 10px;
+  margin-right: 10px;
+  float: right;
+}
+
+@media (max-width: 700px) {
+  .l-container,
+  .r-container {
+    width: 100%;
+    float: none;
+  }
+}
+
+.welcome-note {
+  font-size: small;
+}
+
+.left-container {
+  flex: 1;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  text-align: left;
+}
+
+.right-container {
+  flex: 1;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  text-align: right;
+}
+
+.star-rating {
+  color: silver;
+  cursor: pointer;
+}
+
+.star-rating i {
+  transition: color 0.25s;
+}
+
+.star-rating .fas {
+  color: gold;
+}
+
+.review-card {
+  border: 1px solid #ccc;
+  margin: 10px;
+  padding: 10px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.review-name {
+  font-weight: bold;
+}
+
+.review-rating {
+  text-align: center;
+}
+
+.review-date {
+  text-align: right;
+}
+
+.review-text {
+  margin-top: 10px;
+}
+
+#reviewReport {
+  height: 500px;
+  overflow: auto;
+}
+
+/* admin stylesheet.css */
+
+.float-end {
+  float: right;
+}
+
+.wrapper-main {
+  margin-top: 2rem;
+}
+
+.table-wrapper {
+  max-height: 700px;
+  /* overflow-y: auto; */
+  text-align: center;
+}
+
+.table thead th {
+  background-color: #83faf9;
+  color: #000;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #35fae0;
+  color: #000;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: white;
+}
+
+.btn-group {
+  display: flex;
+  gap: 2px;
+}
+
+.btn-warning {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover {
+  color: #fff;
+  background-color: #c82333;
+  border-color: #bd2130;
+}
