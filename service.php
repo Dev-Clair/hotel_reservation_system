@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="mt-4 mb-0">
         <header>
             <div class="left-container">
-                <img src="water.png" alt="" />
+                <img src="img/water.png" alt="" />
                 <!-- <a href=" https://www.flaticon.com/free-icons/architecture-and-city" - Flaticon></a>" -->
             </div>
             <div class="right-container">
