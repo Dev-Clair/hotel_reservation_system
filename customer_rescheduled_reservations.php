@@ -1,12 +1,16 @@
 <?php
-// Import Database Files
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'admin_database_controller.php';
-// Import file for validating user input
+// require resource: Connection Object
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbSource.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbController.php';
+// import file for validating user input
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php';
 
-// Retrieve BookingID from Query String
-$bookingID = isset($_GET['bookingID']) ? (int)$_GET['bookingID'] : null;
+$connection = new DbConnection($serverName = "localhost", $userName = "root", $password = "", $database = "hotelreservation");
+$conn = $connection->getConnection();
+$operation = new DatabaseTableOperations($conn);
+
+// Retrieve BookingData from Query String
+$bookingData = isset($_GET['bookingData']) ? unserialize(urldecode($_GET['bookingData'])) : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve Form Inputs
@@ -33,25 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Check if $bookingID is valid
-    if (validate_bookingID($bookingID) || adminValidate_bookingID($bookingID)) {
+    // Check if $bookingID is not null
+    if ($bookingData['bookingID'] !== null) {
         // If Valid: Retrieve and add record from bookings table  to rescheduledBookings table in database
-        $retrievedRecord = readSingleBooking($bookingID);
-        print_r($retrievedRecord);
-        $rescheduleCount = retrieveRescheduleCount($bookingID);
-        if ($rescheduleCount < 2) {
-            $rescheduleCount++;
-            $retrievedRecord['count'] = $rescheduleCount;
-            $newRecord = $retrievedRecord;
-        }
-        $rescheduleStatus = addRescheduledBooking($newRecord);
-        // Delete Record from bookings table in database
-        $deleteStatus = deleteSingleBooking($bookingID);
+        $rescheduleStatus = $operation->createRecords("rescheduledbookings", $bookingData);
+        // Delete Record if it is retrieved from bookings table in database
+        $deleteStatus = $operation->deleteSingleRecord("bookings", "bookingID", $bookingData['bookingID']);
 
-        if ($rescheduleStatus === true && $deleteStatus === true) {
+        if ($rescheduleStatus === true || $deleteStatus === true) {
             // Create an array of updated booking details
-            $updatedRecord = array(
-                'roomType' => $roomType,
+            $validEntries = array(
                 'checkInDate' => $checkInDate,
                 'checkInTime' => $checkInTime,
                 'stayType' => $stayType,
@@ -59,49 +54,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'pickUpLocation' => $pickUpLocation
             );
 
-            // Check Reschedule Counter
-            $rescheduleCount = retrieveRescheduleCount($bookingID);
-            if ($rescheduleCount > 2) {
-                deleteRescheduledBooking($bookingID);
-                // Redirect to index.php with success message
-                $successMessage = "Booking has been cancelled. The contract is deemed executed after rescheduling more than twice.";
-                $address = 'index.php?updateSuccessMessage=' . urlencode($successMessage);
-                header("Location: $address");
-                exit();
-            }
-
-            // Update the record with the matching bookingID
-            $count = updateRescheduleCount($rescheduleCount, $bookingID);
-            $updatedRecord = updateRescheduledBooking($bookingID, $updatedRecord);
-
-            if ($count === true && $updatedRecord === true) {
-                // Redirect to index.php with success message
-                $successMessage = "Booking Successfully Rescheduled. The reception will call 3 hours before the check-in time to confirm availability status.";
-                $address = 'index.php?updateSuccessMessage=' . urlencode($successMessage);
-                header("Location: $address");
-                exit();
-            }
+            // Update the record with the matching bookingID]
+            $updatedRecord = $operation->updateRecordFields("rescheduledbookings", $validEntries, "bookingID", $bookingData['bookingID']);
+        }
+        if ($updatedRecord === true) {
+            // Redirect to index.php with success message
+            $successMessage = "Booking Successfully Rescheduled. The reception will call 3 hours before the check-in time to confirm availability status.";
+            $address = 'index.php?rescheduleSuccessMessage=' . urlencode($successMessage);
+            header("Location: $address");
+            exit();
         }
     }
 
     $errorMessage = "Error! Cannot update record";
-    $address = 'customer_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
-    header("Location: $address");
-    exit();
-}
-
-// Retrieve booking information from database
-if ($bookingID) {
-    $bookingData = readSingleBooking($bookingID);
-} else {
-    $errorMessage = "Error! Invalid booking ID.";
-    $address = 'customer_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
+    $address = 'customer_rescheduled_reservations.php?rescheduleErrorMessage=' . urlencode($errorMessage);
     header("Location: $address");
     exit();
 }
 
 // Check if booking data is found
-if ($bookingData) {
+if (is_array($bookingData)) {
     $checkInDate = $bookingData['checkInDate'];
     $checkInTime = $bookingData['checkInTime'];
     $stayType = $bookingData['stayType'];
@@ -109,7 +81,7 @@ if ($bookingData) {
     $pickUpLocation = $bookingData['pickUpLocation'];
 } else {
     $errorMessage = "Error! Booking data not found.";
-    $address = 'customer_rescheduled_reservations.php?updateErrorMessage=' . urlencode($errorMessage);
+    $address = 'index.php?updateErrorMessage=' . urlencode($errorMessage);
     header("Location: $address");
     exit();
 }
@@ -143,7 +115,7 @@ if ($bookingData) {
     ?>
     <div class="container">
         <form method="post" action="">
-            <h4>Update Booking Reservation Details: <?php echo $bookingID; ?></h4>
+            <h4>Update Booking Reservation Details: <?php echo $bookingData['bookingID']; ?></h4>
             <div class="form-group">
                 <label for="checkInDate"><strong>Check-in Date:</strong></label>
                 <input type="date" class="form-control" id="checkInDate" name="checkInDate" value="<?php echo $checkInDate; ?>">
@@ -156,28 +128,29 @@ if ($bookingData) {
                 <label for="durationOfStay"><strong>Check-in Duration:</strong></label>
                 <div class="form-check">
                     <div class="form-check form-check-inline">
-                        <input type="radio" class="form-check-input" id="shortStay" name="stayType" value="shortStay">
+                        <input type="radio" class="form-check-input" id="shortStay" name="stayType" value="shortStay" <?php if ($stayType === 'shortStay') echo 'checked'; ?>>
                         <label class="form-check-label" for="shortStay"><strong>Short Stay</strong></label>
                     </div>
                     <div class="form-check form-check-inline">
-                        <input type="radio" class="form-check-input" id="extendedStay" name="stayType" value="extendedStay">
+                        <input type="radio" class="form-check-input" id="extendedStay" name="stayType" value="extendedStay" <?php if ($stayType === 'extendedStay') echo 'checked'; ?>>
                         <label class="form-check-label" for="extendedStay"><strong>Extended Stay</strong></label>
                     </div>
                     <select class="form-control my-2" id="stayDuration" name="stayDuration">
                         <option value="">--Click to Select--</option>
                         <optgroup label="Short Stay">
-                            <option value="1 day">1 day</option>
-                            <option value="2 days">2 days</option>
-                            <option value="3 days">3 days</option>
-                            <option value="4 days">4 days</option>
-                            <option value="5 days">5 days</option>
-                            <option value="6 days">6 days</option>
+                            <option value="1 day" <?php if ($stayDuration == '1 day') echo 'selected'; ?>>1 day</option>
+                            <option value="2 days" <?php if ($stayDuration == '2 days') echo 'selected'; ?>>2 days</option>
+                            <option value="3 days" <?php if ($stayDuration == '3 days') echo 'selected'; ?>>3 days</option>
+                            <option value="4 days" <?php if ($stayDuration == '4 days') echo 'selected'; ?>>4 days</option>
+                            <option value="5 days" <?php if ($stayDuration == '5 days') echo 'selected'; ?>>5 days</option>
+                            <option value="6 days" <?php if ($stayDuration == '6 days') echo 'selected'; ?>>6 days</option>
                         </optgroup>
                         <optgroup label="Extended Stay">
-                            <option value="1-2 weeks">1-2 weeks</option>
-                            <option value="2-3 weeks">2-3 weeks</option>
-                            <option value="1 month">1 month</option>
-                            <option value="1-2 months">1-2 months</option>
+                            <option value="1-2 weeks" <?php if ($stayDuration == '1-2 weeks') echo 'selected'; ?>>1-2 weeks</option>
+                            <option value="2-3 weeks" <?php if ($stayDuration == '2-3 weeks') echo 'selected'; ?>>2-3 weeks</option>
+                            <option value="1 month" <?php if ($stayDuration == '1 month') echo 'selected'; ?>>1 month</option>
+                            <option value="1-2 months" <?php if ($stayDuration == '1-2 months') echo 'selected'; ?>>1-2 months</option>
+                        </optgroup>
                         </optgroup>
                     </select>
                 </div>

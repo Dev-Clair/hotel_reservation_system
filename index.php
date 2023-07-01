@@ -84,9 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ?>
     <!-- Reschedule Reservation Success Alert -->
     <?php
-    if (isset($_GET['updateSuccessMessage'])) {
-        $errorMessage = $_GET['updateSuccessMessage'];
+    if (isset($_GET['rescheduleSuccessMessage'])) {
+        $errorMessage = $_GET['rescheduleSuccessMessage'];
         echo '<div class="alert alert-success">' . $errorMessage . '</div>';
+    }
+    ?>
+    <!-- Reschedule Reservation Error Alert -->
+    <?php
+    if (isset($_GET['rescheduleErrorMessage'])) {
+        $errorMessage = $_GET['rescheduleErrorMessage'];
+        echo '<div class="alert alert-danger">' . $errorMessage . '</div>';
     }
     ?>
 
@@ -157,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="roomReservationForm" method="post" action="reservation_handler.php">
+                    <form id="roomReservationForm" method="post" action="book_reservation_handler.php">
                         <!-- Service Details -->
                         <div class="form-group">
                             <label for="roomType"><strong>Room Type:</strong></label>

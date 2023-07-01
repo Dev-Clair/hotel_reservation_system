@@ -1,5 +1,11 @@
 <?php
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php'; // Import Database File
+// require resource: Connection Object
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbSource.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbController.php';
+
+$connection = new DbConnection($serverName = "localhost", $userName = "root", $password = "", $database = "hotelreservation");
+$conn = $connection->getConnection();
+$operation = new DatabaseTableOperations($conn);
 
 // Retrieve BookingID from Query String
 $bookingID = (int)$_GET['bookingID'];
@@ -23,7 +29,7 @@ $bookingID = (int)$_GET['bookingID'];
         <h1>Booking Ticket</h1>
         <?php
         // Retrieve booking information from database
-        $bookingData = readSingleBooking($bookingID);
+        $bookingData = $operation->retrieveSingleRecord("bookings", "bookingID", $bookingID);
 
         if ($bookingData) {
             // Display booking details

@@ -1,7 +1,15 @@
 <?php
 ob_start();
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php'; // Import Database File
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php'; // Import file for validating userinput
+// require resource: Connection Object
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbSource.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbController.php';
+// import file for validating user input
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php';
+
+$connection = new DbConnection($serverName = "localhost", $userName = "root", $password = "", $database = "hotelreservation");
+$conn = $connection->getConnection();
+$operation = new DatabaseTableOperations($conn);
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve submitted form values
@@ -36,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     //     $errors[] = "Invalid mobile number. Please enter a valid mobile number.";
 
     if (!empty($errors)) {
-        $errorMessage = implode("\n", $errors);
+        $errorMessage = implode("", $errors);
         $address = 'index.php?bookingErrorMessage=' . urlencode($errorMessage);
         ob_end_flush();
         redirect_to($address);
@@ -61,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
 
     // Add new record to database
-    $addRecord = createBooking($newRecord);
+    $addRecord = $operation->createRecords("bookings", $newRecord);
 
     if ($addRecord) {
         // Redirect to booking_details.php with bookingID

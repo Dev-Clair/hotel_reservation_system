@@ -1,18 +1,22 @@
 <?php
-// Import Database Files
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'assign_reservation_database_controller.php';
+// require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbSource.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbController.php';
+
+$connection = new DbConnection($serverName = "localhost", $userName = "root", $password = "", $database = "hotelreservation");
+$conn = $connection->getConnection();
+$operation = new DatabaseTableOperations($conn);
 
 // Retrieve BookingID from Query String
 $bookingID = isset($_GET['bookingID']) ? (int)$_GET['bookingID'] : null;
 
 // Validate BookingID
-if (validate_bookingID($bookingID)) {
+if ($operation->validateFieldValue("bookings", "bookingID", $bookingID)) {
     // If Valid: Retrieve and add record from bookings table  to customerservice table in database
-    $assignStatus = assignBooking(readSingleBooking($bookingID));
+    $assignStatus = $operation->createRecords("customerservice", $operation->retrieveSingleRecord("bookings", "bookingID", $bookingID));
 
     // Delete Record from bookings table in database
-    $deleteStatus = deleteSingleBooking($bookingID);
+    $deleteStatus = $operation->deleteSingleRecord("bookings", "bookingID", $bookingID);
 
     if ($assignStatus === true && $deleteStatus === true) {
         // Redirect to admin.php with success message

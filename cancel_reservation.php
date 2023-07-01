@@ -1,19 +1,22 @@
 <?php
-// Import Database Files
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'bookings_database_controller.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'cancel_reservation_database_controller.php';
+// require_once __DIR__ . DIRECTORY_SEPARATOR . 'validate_userinput.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbSource.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'dbController.php';
+
+$connection = new DbConnection($serverName = "localhost", $userName = "root", $password = "", $database = "hotelreservation");
+$conn = $connection->getConnection();
+$operation = new DatabaseTableOperations($conn);
 
 // Retrieve BookingID from Query String
 $bookingID = isset($_GET['bookingID']) ? (int)$_GET['bookingID'] : null;
 
-
 // Validate BookingID
-if (validate_bookingID($bookingID)) {
+if ($operation->validateFieldValue("bookings", "bookingID", $bookingID)) {
     // If Valid: Retrieve record from bookings table and Add to cancelledBookings table in database
-    $cancelStatus = cancelBooking(readSingleBooking($bookingID));
+    $assignStatus = $operation->createRecords("cancelledbookings", $operation->retrieveSingleRecord("bookings", "bookingID", $bookingID));
 
-    // Delete record from bookings table in database
-    $deleteStatus = deleteSingleBooking($bookingID);
+    // Delete Record from bookings table in database
+    $deleteStatus = $operation->deleteSingleRecord("bookings", "bookingID", $bookingID);
 
     if ($cancelStatus === true && $deleteStatus === true) {
         // Redirect to admin.php with success message
