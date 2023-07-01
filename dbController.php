@@ -21,6 +21,7 @@ class CreateTable
     /**
      * @param string $tableName = "Name of table to be created in database"
      * @param string $columns = "fieldName dataType NULL/NOT NULL ?PRIMARY KEY ?AUTO_INCREMENT, fieldName dataType NULL/NOT NULL ?DEFAULT"
+     * @return bool True if the table was created successfully, false otherwise
      */
     public function createTable(string $tableName, string $fieldNames): bool
     {
@@ -33,6 +34,48 @@ class CreateTable
 
         if ($result !== true) {
             die("Error! Table Creation Failed: " . $this->conn->error);
+        }
+
+        // $this->conn->close(); // Close Connection Object
+        return $result === true;
+    }
+
+    /**
+     * @param string $tableName Name of the table to be truncated in the database
+     * @return bool True if the table was truncated successfully, false otherwise
+     */
+    public function truncateTable(string $tableName): bool
+    {
+        if ($this->conn === null) {
+            die("No database connection available.");
+        }
+
+        $sql_query = "TRUNCATE TABLE $tableName";
+        $result = $this->conn->query($sql_query);
+
+        if ($result !== true) {
+            die("Error! Process Failed: " . $this->conn->error);
+        }
+
+        // $this->conn->close(); // Close Connection Object
+        return $result === true;
+    }
+
+    /**
+     * @param string $tableName Name of the table to be dropped in the database
+     * @return bool True if the table was dropped successfully, false otherwise
+     */
+    public function dropTable(string $tableName): bool
+    {
+        if ($this->conn === null) {
+            die("No database connection available.");
+        }
+
+        $sql_query = "DROP TABLE $tableName";
+        $result = $this->conn->query($sql_query);
+
+        if ($result !== true) {
+            die("Error! Process Failed: " . $this->conn->error);
         }
 
         // $this->conn->close(); // Close Connection Object
@@ -307,5 +350,3 @@ class DatabaseTableOperations
         }
     }
 }
-
-// TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
