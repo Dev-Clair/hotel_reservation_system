@@ -41,6 +41,28 @@ class CreateTable
     }
 
     /**
+     * @param string $tableName Name of the table to be altered in the database
+     * @param string $alterStatement Statement to modify the table structure
+     * @return bool True if the table was altered successfully, false otherwise
+     */
+    public function alterTable(string $tableName, string $alterStatement): bool
+    {
+        if ($this->conn === null) {
+            die("No database connection available.");
+        }
+
+        $sql_query = "ALTER TABLE $tableName $alterStatement";
+        $result = $this->conn->query($sql_query);
+
+        if ($result !== true) {
+            die("Error! Process Failed: " . $this->conn->error);
+        }
+
+        // $this->conn->close(); // Close Connection Object
+        return $result === true;
+    }
+
+    /**
      * @param string $tableName Name of the table to be truncated in the database
      * @return bool True if the table was truncated successfully, false otherwise
      */

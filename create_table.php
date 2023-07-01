@@ -76,10 +76,15 @@ $fieldNames = "`id` int(11) PRIMARY KEY NOT NULL,
 `serviceStatus` varchar(20) NOT NULL";
 // print_r($operation->createTable("services", $fieldNames));
 
+/** *******************************************Alter Tables***************************************** */
+$tableName = "";
+$statement = "ADD COLUMN `datecreated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER" . "";
+// print_r($operation->alterTable($tableName, $statement));
+
 /** *******************************************Truncate Tables***************************************** */
 $tableName = "";
-// print_r($operation->truncateTable("$tableName"));
+// print_r($operation->truncateTable($tableName));
 
 /** *******************************************Drop Tables***************************************** */
 $tableName = "";
-// print_r($operation->dropTable("$tableName"));
+// print_r($operation->dropTable($tableName));
